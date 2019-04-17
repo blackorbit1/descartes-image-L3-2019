@@ -9,25 +9,29 @@ public class Decode {
 	public static String decode(String code) {
 		
 		//The code must be 95 characters long
-		if(code.length()!=95) {
-			return("Not a valid EAN-13 barcode");
+		if(code.length() != 95) {
+			return("Not a valid EAN-13 barcode (pas le bon nb de bits)");
 		}
 
 		//We define a StringBuffer to facilitate (read: enable) 
 		//operating on the string
 		StringBuffer buf = new StringBuffer(code);
 		
-		//An EAN-13 barcode begins with 010
-		if(buf.substring(0, 2)!="010") {
-			return("Not a valid EAN-13 barcode");
+		//An EAN-13 barcode begins with 101
+		if(buf.substring(0, 3).toString().compareTo("101") != 0) {
+			System.out.println(buf.substring(0, 3).toString().compareTo("101"));
+			System.out.println(buf.substring(0, 3).toString().compareTo("101") == 0);
+			return("Not a valid EAN-13 barcode at the beginning (" + buf.substring(0, 3).toString() + ")");
 		}
-		//Ends in 010
-		if(buf.substring(92, 94)!="010") {
-			return("Not a valid EAN-13 barcode");
+		//Ends in 101
+		if(buf.substring(92, 95).toString().compareTo("101") != 0) {
+			System.out.println(buf.substring(92, 95).toString().compareTo("101"));
+			System.out.println(buf.substring(92, 95).toString().compareTo("101") == 0);
+			return("Not a valid EAN-13 barcode at the end (" + buf.substring(92, 95).toString() + ")");
 		}
 		//And has 01010 after the first 6 coded numbers
-		if(buf.substring(45,49)!="01010") {
-			return("Not a valid EAN-13 barcode");
+		if(buf.substring(45,50).toString().compareTo("01010") != 0) {
+			return("Not a valid EAN-13 barcode at the middle (" + buf.substring(45,50).toString() + ")");
 		}
 		
 		//If all the verifications have been passed, we create a dictionary,
@@ -67,11 +71,12 @@ public class Decode {
 		
 		//We define another dictionary to get the parity number
 		HashMap<String,Integer> parity=new HashMap<>();
-		parity.put("111111", new Integer(1));
-		parity.put("112122", new Integer(2));
-		parity.put("112212", new Integer(3));
-		parity.put("112221", new Integer(4));
-		parity.put("121122", new Integer(5));
+		parity.put("111111", new Integer(0));
+		parity.put("112122", new Integer(1));
+		parity.put("112212", new Integer(2));
+		parity.put("112221", new Integer(3));
+		parity.put("121122", new Integer(4));
+		parity.put("122112", new Integer(5));
 		parity.put("122211", new Integer(6));
 		parity.put("121212", new Integer(7));
 		parity.put("121221", new Integer(8));
@@ -84,20 +89,31 @@ public class Decode {
 		//We decode second to seventh elements using our dictionary
 		//and append them to our output
 		for(int i=0;i<6;i++) {
-			output.append(dictionnaire.get(buf.substring(3+i*6, 10+i*6))[0]);
-			pnumber.append(dictionnaire.get(buf.substring(3+i*6, 10+i*6))[1]);
+			String s_buffer = buf.substring(3+i*7, 10+i*7);
+			System.out.println(s_buffer);
+			System.out.println(dictionnaire.get(s_buffer));
+			System.out.println(dictionnaire.get("0001011"));
+			output.append(dictionnaire.get(s_buffer)[0]);
+			pnumber.append(dictionnaire.get(s_buffer)[1]);
 		}
-		
+		System.out.println(output.toString());
 		if(pnumber.toString()=="222222") {
 			return("Inverted");
 		}
 		//We insert the parity number at the beginning of the output
 		output.insert(0, parity.get(pnumber.toString()));
+		System.out.println(pnumber.toString());
+		System.out.println(parity.get(pnumber.toString()));
+		System.out.println(output.toString());
 		
 		//We decode the last 6 numbers and append them to our output
 		for(int i=6;i<12;i++) {
-			output.append(dictionnaire.get(buf.substring(8+i*6,15+i*6))[0]);
+			String s_buffer = buf.substring(8+i*7,15+i*7);
+			System.out.println(s_buffer);
+			System.out.println(dictionnaire.get(s_buffer));
+			output.append(dictionnaire.get(s_buffer)[0]);
 		}		
+		System.out.println(output.toString());
 		
 		//We return the output
 		return output.toString();

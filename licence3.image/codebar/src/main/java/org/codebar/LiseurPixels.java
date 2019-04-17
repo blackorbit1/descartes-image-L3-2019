@@ -18,8 +18,7 @@ import net.imglib2.type.numeric.integer.IntType;
 
 public class LiseurPixels {
 	
-	
-	public static <T> String getCodeBinaire(ImgPlus<T> inputImage) {
+	public static <T extends RealType<T>> String getCodeBinaire(ImgPlus<T> inputImage) {
 		long[] dims = new long[inputImage.numDimensions()];
 		inputImage.dimensions(dims);
 		RandomAccess<T> inputImageCursor = inputImage.randomAccess();
@@ -37,13 +36,17 @@ public class LiseurPixels {
 		int nb_pixels = 0;
 		int decompte_parcours_bordure = 0;
 		int nb_pixels_last_change = 0;
+		
+		System.out.println("longueur_bit : " + longueur_bit);
+		System.out.println("longueur_changement : " + longueur_changement);
 
-		for (int i = 0; i < inputImage.dimension(0); i++) {
+		for (int i = 0; i < inputImage.dimension(0) && nb_bit < 95; i++) {
 			nb_pixels++;
 			posInputImage[0] = i;
 			inputImageCursor.setPosition(posInputImage);
 			boolean changement = false;
 			decompte_parcours_bordure--;
+			
 			if(i > 1 && i < (inputImage.dimension(0) - 1)) {
 				
 				
@@ -83,22 +86,35 @@ public class LiseurPixels {
 				// Si c'est blanc
 				if(debut) {
 					// pass
-				} else if(nb_bit >= 3) {
+					System.out.println("debut blanc");
+				} else if(nb_bit <= 2) {
 					if(dernier_noir) {
-						nb_bit++;
-						longueur_bit = (longueur_bit + nb_pixels)/2;
 						tab_bits[nb_bit] = 0;
+						nb_bit++;
+						nb_pixels_last_change++;
+						longueur_bit = (longueur_bit + nb_pixels_last_change)/2;
+						nb_pixels_last_change = 0;
+						System.out.println("vers debut est devenu blanc");
 					} else {
+						System.out.println("vers debut reste blanc");
+						nb_pixels_last_change++;
 						// pass
 					}
-				} else if(!dernier_noir && (nb_pixels_last_change % longueur_bit) == 0) {
-					nb_bit++;
+				} else if(!dernier_noir && nb_pixels_last_change > longueur_bit && ((nb_pixels_last_change + longueur_bit / 3) % longueur_bit) == 0) {
+					System.out.println("nb_pixels_last_change : " + nb_pixels_last_change);
+					System.out.println("longueur_bit : " + longueur_bit);
+					nb_pixels_last_change++;
 					tab_bits[nb_bit] = 0;
+					nb_bit++;
+					System.out.println("reste blanc, nouveau bit");
 				} else if(dernier_noir) {
-					nb_bit++;
+					nb_pixels_last_change = 0;
 					tab_bits[nb_bit] = 0;
+					nb_bit++;
+					System.out.println("est devenu blanc");
 				} else if(!dernier_noir) {
 					nb_pixels_last_change++;
+					System.out.println("reste blanc");
 				}
 				dernier_noir = false;
 				
@@ -108,33 +124,50 @@ public class LiseurPixels {
 					debut = false;
 					tab_bits[nb_bit] = 1;
 					nb_bit++;
-				} else if (nb_bit >= 3) {
+					nb_pixels_last_change++;
+					System.out.println("tout début, noir");
+				} else if (nb_bit <= 2) {
 					if(dernier_noir) {
-						// passs
+						// pass
+						System.out.println("vers debut reste noir");
+						nb_pixels_last_change++;
 					} else {
-						nb_bit++;
-						longueur_bit = (longueur_bit + nb_pixels)/2;
+						System.out.println("vers debut est devenu noir");
 						tab_bits[nb_bit] = 1;
+						nb_bit++;
+						nb_pixels_last_change++;
+						longueur_bit = (longueur_bit + nb_pixels_last_change)/2;
+						nb_pixels_last_change = 0;
 					}
-				} else if(dernier_noir && (nb_pixels_last_change % longueur_bit) == 0) {
-					nb_bit++;
+				} else if(dernier_noir && nb_pixels_last_change > longueur_bit && ((nb_pixels_last_change + longueur_bit / 3) % longueur_bit) == 0) {
+					System.out.println("nb_pixels_last_change : " + nb_pixels_last_change);
+					System.out.println("longueur_bit : " + longueur_bit);
+					nb_pixels_last_change++;
 					tab_bits[nb_bit] = 1;
+					nb_bit++;
+					System.out.println("reste noir, nouveau bit");
 				} else if(!dernier_noir) {
-					nb_bit++;
+					nb_pixels_last_change = 0;
 					tab_bits[nb_bit] = 1;
+					nb_bit++;
+					System.out.println("est devenu noir");
 				} else if(dernier_noir) {
 					nb_pixels_last_change++;
+					System.out.println("reste noir");
 				}
 				dernier_noir = true;
 			}
 		}
 		
 		String resultat = "";
+		System.out.println("");
 		for(int i = 0; i<tab_bits.length; i++) {
 			resultat += "" + tab_bits[i];
+			System.out.print("" + tab_bits[i]);
 		}
+		System.out.println("");
 		
-		System.out.println(resultat);
+		System.out.println("Resultat final : " + resultat);
 		
 		return resultat;
 		

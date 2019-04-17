@@ -9,22 +9,14 @@ import net.imagej.ImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.AbstractIntegerType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
-@Plugin(type = Command.class, menuPath = "Plugins>Binarizator")
-public class Binarizator<T extends RealType<T>> implements Command {
-
-	@Parameter(persist = false)
-	ImgPlus<T> inputImage;
-
-	@Parameter(required = false)
-	int threshold = 95;
-
-	@Parameter(type = ItemIO.OUTPUT)
-	ImgPlus<UnsignedByteType> mask;
-
-	@Override
-	public void run() {
+public class Binarizator {
+	public <T> ImgPlus binarize(ImgPlus<T> inputImage) {
+		ImgPlus<UnsignedByteType> mask;
+		int threshold = 95;
+		
 		//DIMENSION EST LE NOMBRE DE COULEURS QUI L'IMAGE A.
 		//mask est la image résultat.
 		// dimensions holds the size of the input image in x and y
@@ -57,13 +49,18 @@ public class Binarizator<T extends RealType<T>> implements Command {
 				maskCursor.setPosition(currentPosition);
 
 				// 4. obtenir intensite de l'image a la position currentPosition
-				if (inputImageCursor.get().getRealDouble() > threshold) {
+				if (((AbstractIntegerType<UnsignedByteType>) inputImageCursor.get()).getRealDouble() > threshold) {
 					// 5. affecter pixel de l'image de sortie
 					maskCursor.get().set(255);
 				}
 			}
 		}
+		return mask;
 	}
+
+
+
+
 
 }
 	
