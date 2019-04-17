@@ -110,7 +110,7 @@ public class LiseurPixels {
 					nb_bit++;
 				} else if (nb_bit >= 3) {
 					if(dernier_noir) {
-						// pass
+						// passs
 					} else {
 						nb_bit++;
 						longueur_bit = (longueur_bit + nb_pixels)/2;
