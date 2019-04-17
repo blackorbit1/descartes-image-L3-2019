@@ -1,4 +1,4 @@
-package solution;
+package org.codebar;
 
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
@@ -11,27 +11,31 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
-@Plugin(type = Command.class, menuPath = "Plugins>TD 3 Solution>Threshold image (Solved)")
-public class ThresholdImageSolution<T extends RealType<T>> implements Command {
+@Plugin(type = Command.class, menuPath = "Plugins>Binarizator")
+public class Binarizator<T extends RealType<T>> implements Command {
 
 	@Parameter(persist = false)
 	ImgPlus<T> inputImage;
 
 	@Parameter(required = false)
-	int threshold = 127;
+	int threshold = 95;
 
 	@Parameter(type = ItemIO.OUTPUT)
 	ImgPlus<UnsignedByteType> mask;
 
 	@Override
 	public void run() {
+		//DIMENSION EST LE NOMBRE DE COULEURS QUI L'IMAGE A.
+		//mask est la image résultat.
 		// dimensions holds the size of the input image in x and y
-		long[] imageDimensions = new long[inputImage.numDimensions()];
-		long[] maskDimensions = new long[inputImage.numDimensions()];
-		inputImage.dimensions(imageDimensions);
-		inputImage.dimensions(maskDimensions);
-		if(maskDimensions.length > 2)
-			maskDimensions[2] = 1;
+		long[] imageDimensions = new long[inputImage.numDimensions()]; // (?)
+		long[] maskDimensions = new long[inputImage.numDimensions()];  // (?)
+		inputImage.dimensions(imageDimensions);						   // (?)
+		inputImage.dimensions(maskDimensions);						   // (?)
+		if(maskDimensions.length > 2)								   // (?)
+			maskDimensions[2] = 1;									   // (?)
+		
+		
 		// Creation of the resulting image with the same size as the input image.
 
 		mask = ImgPlus.wrap(ArrayImgs.unsignedBytes(maskDimensions));
@@ -55,10 +59,12 @@ public class ThresholdImageSolution<T extends RealType<T>> implements Command {
 				// 4. obtenir intensite de l'image a la position currentPosition
 				if (inputImageCursor.get().getRealDouble() > threshold) {
 					// 5. affecter pixel de l'image de sortie
-					maskCursor.get().set(1);
+					maskCursor.get().set(255);
 				}
 			}
 		}
 	}
 
 }
+	
+
