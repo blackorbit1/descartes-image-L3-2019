@@ -38,6 +38,7 @@ public class Detecteur {
 	}
 
 	public static <T extends RealType> ArrayList<ImgPlus<DoubleType>> crop(ImgPlus<T> inputImage){
+		Rotator.rotate90();
 		ArrayList<ImgPlus<DoubleType>> list = new ArrayList<>();
 
 		long[] dimensions = new long[inputImage.numDimensions()];
