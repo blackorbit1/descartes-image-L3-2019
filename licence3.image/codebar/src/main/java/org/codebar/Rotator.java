@@ -17,7 +17,7 @@ public class Rotator {
 		public static void rotate90(){
 
 			IJ.run("Rotate 90 Degrees Right");
-
+//			ouff
 //			long[] dimso = new long[inputImage.numDimensions()];
 //			inputImage.dimensions(dimso);
 //			

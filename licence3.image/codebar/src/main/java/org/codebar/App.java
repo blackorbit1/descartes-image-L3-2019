@@ -8,7 +8,6 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.process.ImageConverter;
 import net.imagej.ImgPlus;
 import net.imagej.ops.OpService;
@@ -56,7 +55,7 @@ public class App<T> implements Command {
 		Rotator.rotate45();
 		Rotator.rotate1cw();
 		
-		//On definie une ImagePlus
+		//On definie une ImagePlus avec l'image actuellement ouverte
 		ImagePlus temp = ij.IJ.getImage();
 		//On cree un ImageConverter, initialise avec cette ImagePlus
 		ImageConverter converter = new ImageConverter(temp);
